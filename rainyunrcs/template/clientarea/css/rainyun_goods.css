@@ -1,0 +1,655 @@
+/* ==================== 基础重置 & 容器 ==================== */
+[v-cloak] { display: none; }
+
+.ry-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px 100px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #333;
+  background: #f8f9fa;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ==================== 顶部导航 ==================== */
+.ry-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 20px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 24px;
+}
+
+.ry-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #495057;
+  text-decoration: none;
+}
+.ry-back:hover { background: #e9ecef; }
+
+.ry-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* ==================== 区块 ==================== */
+.ry-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.ry-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 4px 0;
+}
+.ry-section-title svg { flex-shrink: 0; }
+
+.ry-divider {
+  border: 0;
+  border-top: 1px solid #e9ecef;
+  margin: 12px 0 16px;
+}
+
+/* ==================== 标签 & 提示 ==================== */
+.ry-label-text {
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+}
+
+.ry-price-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0d6efd;
+  background: #e7f1ff;
+  padding: 1px 10px;
+  border-radius: 20px;
+  margin-left: 6px;
+}
+
+.ry-tips {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+  font-size: 13px;
+  color: #868e96;
+}
+.ry-tips li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 4px;
+  line-height: 1.6;
+}
+.ry-tips li::before {
+  content: "•";
+  position: absolute;
+  left: 2px;
+  color: #adb5bd;
+}
+.ry-tips li a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+.ry-tips li a:hover { text-decoration: underline; }
+
+/* ==================== 系统盘 ==================== */
+.ry-disk-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+.ry-disk-item:last-child { border-bottom: 0; }
+
+.ry-disk-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-bottom: 10px;
+}
+.ry-disk-row:last-child { margin-bottom: 0; }
+
+.ry-disk-label {
+  flex: 0 0 140px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ry-disk-control {
+  flex: 1;
+  min-width: 180px;
+}
+.ry-disk-control .ry-select { width: 100%; max-width: 240px; }
+
+/* ==================== 公网 IP ==================== */
+.ry-ip-section { padding: 4px 0; }
+.ry-ip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-bottom: 14px;
+}
+.ry-ip-row:last-child { margin-bottom: 4px; }
+
+.ry-ip-label {
+  flex: 0 0 140px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ry-ip-control {
+  flex: 1;
+  min-width: 180px;
+}
+.ry-ip-control .ry-select { width: 100%; max-width: 240px; }
+
+/* ==================== 通用选择框 ==================== */
+.ry-select {
+  display: inline-block;
+  padding: 7px 32px 7px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") no-repeat right 10px center / 14px 14px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ry-select:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+}
+.ry-select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ==================== 数字调节器 ==================== */
+.ry-spinbutton {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ry-spin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #495057;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ry-spin-btn:hover:not(:disabled) { background: #f1f3f5; }
+.ry-spin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ry-spin-output {
+  min-width: 48px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 8px;
+  line-height: 34px;
+  border-left: 1px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+  background: #fff;
+  color: #212529;
+  user-select: none;
+}
+
+/* ==================== 操作系统分组（可折叠卡片） ==================== */
+.ry-os-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- 单个系统族分组卡片 ---- */
+.ry-os-group {
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.ry-os-group:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.ry-os-group.ry-os-group-expanded {
+  border-color: #86b7fe;
+  box-shadow: 0 2px 12px rgba(13,110,253,0.08);
+}
+
+/* 分组头部：可点击，展开/收起 */
+.ry-os-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.ry-os-group-header:hover { background: #f8f9fa; }
+
+.ry-os-group-header .ry-os-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* 中间文字区 */
+.ry-os-group-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ry-os-group-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.ry-os-group-version {
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 箭头：展开时旋转 */
+.ry-os-group-arrow {
+  flex-shrink: 0;
+  color: #adb5bd;
+  transition: transform 0.25s ease;
+}
+.ry-os-group-expanded .ry-os-group-arrow {
+  transform: rotate(180deg);
+}
+
+/* ---- 组内版本列表 ---- */
+.ry-os-group-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 14px;
+}
+
+.ry-os-group-items .ry-os-card {
+  cursor: pointer;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 6px 12px;
+  transition: all 0.2s;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+}
+.ry-os-group-items .ry-os-card:hover {
+  border-color: #86b7fe;
+  background: #f8fbff;
+}
+.ry-os-group-items .ry-os-card.ry-os-active {
+  border-color: #0d6efd;
+  background: #f0f7ff;
+  box-shadow: 0 0 0 2px rgba(13,110,253,0.15);
+}
+
+.ry-os-group-items .ry-os-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ry-os-group-items .ry-os-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #212529;
+  white-space: nowrap;
+}
+
+/* BBR 标记 */
+.ry-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: #198754;
+  padding: 1px 6px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+/* ==================== 底部购买栏（新版） ==================== */
+.ry-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #e9ecef;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  z-index: 100;
+}
+.ry-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px 24px;
+  padding: 14px 20px;
+}
+.ry-footer-col {
+  flex: 1 1 180px;
+  min-width: 140px;
+}
+.ry-footer-label {
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+.ry-footer-label .ry-cycle-badge {
+  display: inline-block;
+  background: #dc3545;
+  color: #fff;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+/* 周期选择（折叠下拉） */
+.ry-cycle-dropdown {
+  position: relative;
+  user-select: none;
+}
+.ry-cycle-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: border 0.15s;
+}
+.ry-cycle-dropdown-header:hover { border-color: #ffc107; }
+.ry-cycle-dropdown-header .ry-arrow {
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+.ry-cycle-dropdown-header .ry-arrow-up { transform: rotate(180deg); }
+.ry-cycle-dropdown-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 4px;
+  z-index: 10;
+  overflow: hidden;
+}
+.ry-cycle-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid #f1f3f5;
+}
+.ry-cycle-dropdown-item:last-child { border-bottom: none; }
+.ry-cycle-dropdown-item:hover { background: #fff8e1; }
+.ry-cycle-dropdown-item.ry-cycle-active {
+  background: #fff8e1;
+  font-weight: 600;
+}
+.ry-cycle-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ry-cycle-item-label { font-size: 14px; }
+.ry-cycle-item-badge {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.ry-badge-danger { background: #dc3545; color: #fff; }
+.ry-badge-warning { background: #ffc107; color: #333; }
+.ry-cycle-item-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #dc3545;
+  white-space: nowrap;
+}
+
+/* 价格 */
+.ry-footer-price-col { flex: 2 1 240px; }
+.ry-price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ry-price-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: #dc3545;
+}
+.ry-price-original {
+  font-size: 14px;
+  color: #adb5bd;
+  text-decoration: line-through;
+}
+.ry-price-detail {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* 优惠码 */
+.ry-promo-row {
+  display: flex;
+  gap: 6px;
+}
+.ry-promo-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.15s;
+}
+.ry-promo-input:focus { border-color: #ffc107; }
+.ry-promo-applied {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ry-promo-code {
+  font-weight: 600;
+  color: #28a745;
+  font-size: 13px;
+}
+.ry-promo-discount {
+  font-size: 13px;
+  color: #dc3545;
+}
+
+/* 按钮列 */
+.ry-footer-btn-col {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.ry-btn-block { flex: 1; white-space: nowrap; }
+
+/* 小按钮 */
+.ry-btn-sm {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+.ry-btn-link {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+}
+.ry-btn-link:hover { text-decoration: underline; }
+
+/* ==================== 按钮 ==================== */
+.ry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.ry-btn:active { transform: scale(0.97); }
+
+.ry-btn-primary {
+  background: #0d6efd;
+  color: #fff;
+}
+.ry-btn-primary:hover { background: #0b5ed7; }
+
+.ry-btn-secondary {
+  background: #f1f3f5;
+  color: #212529;
+}
+.ry-btn-secondary:hover { background: #e9ecef; }
+
+.ry-btn-trial {
+  background: #fff;
+  color: #0d6efd;
+  border: 1px solid #0d6efd;
+}
+.ry-btn-trial:hover { background: #e7f1ff; }
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 768px) {
+  .ry-container { padding: 12px 12px 120px; }
+  .ry-section { padding: 16px; }
+  .ry-title { font-size: 17px; }
+
+  .ry-disk-label,
+  .ry-ip-label {
+    flex: 0 0 100%;
+  }
+  .ry-disk-control,
+  .ry-ip-control {
+    flex: 1;
+    min-width: 100%;
+  }
+  .ry-disk-control .ry-select,
+  .ry-ip-control .ry-select {
+    max-width: 100%;
+  }
+
+  .ry-os-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .ry-footer-inner {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .ry-footer-col { flex: 1 1 100%; min-width: 0; }
+  .ry-footer-btn-col {
+    flex-direction: row;
+    justify-content: stretch;
+  }
+  .ry-footer-btn-col .ry-btn { flex: 1; text-align: center; }
+  .ry-cycle-dropdown-menu {
+    position: fixed;
+    bottom: auto;
+    top: auto;
+    left: 12px;
+    right: 12px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .ry-os-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .ry-os-card { padding: 10px; }
+  .ry-os-icon { width: 32px; height: 32px; }
+  .ry-os-name { font-size: 13px; }
+
+  .ry-spin-output { min-width: 36px; font-size: 13px; line-height: 30px; }
+  .ry-spin-btn { width: 30px; min-height: 30px; }
+
+  .ry-total-amount { font-size: 17px; }
+  .ry-btn { padding: 8px 16px; font-size: 14px; }
+}
+
+/* 大屏优化 */
+@media (min-width: 992px) {
+  .ry-container { padding: 24px 32px 100px; }
+  .ry-section { padding: 28px 32px; }
+}
+
+.swal2-popup {
+  font-size: initial !important;
+}

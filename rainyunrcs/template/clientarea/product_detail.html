@@ -1,0 +1,673 @@
+<link rel="stylesheet"
+  href="/plugins/server/rainyunrcs/template/clientarea/css/product_detail.css">
+<link rel="stylesheet" href="/plugins/server/rainyunrcs/template/clientarea/css/cloudDetail.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="/plugins/server/rainyunrcs/template/clientarea/css/rainyun_goods.css">
+<style>
+.nat-wrapper { padding: 20px; }
+.nat-wrapper .nat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.nat-wrapper .nat-header .nat-title { font-size: 18px; font-weight: 600; color: #1e293b; }
+.nat-wrapper .nat-empty { text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 14px; }
+</style>
+
+<div class="template common_product_detail">
+  <div class="pro-des-loading" v-if="initLoading">
+    <div id="mainLoading">
+      <div class="ddr ddr1"></div>
+      <div class="ddr ddr2"></div>
+      <div class="ddr ddr3"></div>
+      <div class="ddr ddr4"></div>
+      <div class="ddr ddr5"></div>
+    </div>
+  </div>
+  <!-- 自己的东西 -->
+  <div class="main-card">
+    <div class="main-card-title">
+      <div class="left">
+        <svg t="1749023272025" viewBox="0 0 1024 1024" @click="back" class="back" version="1.1"
+          xmlns="http://www.w3.org/2000/svg" p-id="20485" width="0.26rem" height="0.26rem">
+          <path
+            d="M672.426667 209.92H455.68v-136.533333l-295.253333 170.666666 295.253333 170.666667v-136.533333h215.04C819.2 278.186667 938.666667 397.653333 938.666667 546.133333s-119.466667 267.946667-267.946667 267.946667H52.906667c-18.773333 0-34.133333 15.36-34.133334 34.133333s15.36 34.133333 34.133334 34.133334h619.52c186.026667 0 336.213333-150.186667 336.213333-336.213334s-151.893333-336.213333-336.213333-336.213333z"
+            p-id="20486" fill="var(--color-primary)"></path>
+        </svg>
+        <span class="title">{{host.name}}</span>
+        <host-status :id="id" :status="hostData.status">
+          <span class="tag" @click="goPay" :class="host.status" v-if="hostData?.status"
+            :style="'color:'+status[hostData.status]?.color + ';background:' + status[hostData.status]?.bgColor">
+            {{status[hostData.status].text}}
+          </span>
+        </host-status>
+        <!-- 产品升降级 已注释 -->
+        <!-- <span class="up-authorization" @click="handelUpLicense" v-loading="upgradeLoading"
+          v-if="hostData?.status && hostData.status === 'Active'">{{lang.common_cloud_btn16}}</span> -->
+      </div>
+      <span class="on-off" style="display: inline-flex;align-items: center;">
+
+      </span>
+    </div>
+    <!-- 备注 -->
+    <div class="notes">
+      <!-- 有备注 -->
+      <span class="yes-notes" v-if="hostData.notes" @click="doEditNotes">
+        <i class="el-icon-edit notes-icon"></i>
+        <span class="notes-text">{{hostData.notes}}</span>
+      </span>
+      <!-- 无备注 -->
+      <span class="no-notes" v-else @click="doEditNotes">
+        {{lang.cloud_add_notes + ' +'}}
+      </span>
+    </div>
+
+    <!-- 基础信息 -->
+    <el-tabs class="tabs" v-model="activeName" @tab-click="handleClick"
+      v-show="hostData.status == 'Active' && !initLoading">
+      <el-tab-pane :label="lang.common_cloud_text227" name="0">
+        <div class="basic-info">
+          <!-- 服务器信息 -->
+          <h4 class="info-section-title">服务器信息</h4>
+          <table class="info-table">
+            <tr>
+              <td><small class="text-secondary">服务器 ID：</small><b>{{ host.server_id }}</b></td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">标签：</small><b>{{ host.tag || '未设定' }}</b></td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">运行状态：</small>
+                <b v-html="powerStatusHtml"></b>
+              </td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">节点：</small><b>{{ host.node_name }}</b></td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">到期日期：</small>
+                <b>{{ hostData.due_time | formateTime }}</b>
+                <small><a href="javascript:;" class="text-primary" @click="showRenew" v-if="hostData?.status==='Active' || hostData?.status==='Suspended'"> 续费</a></small>
+              </td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">创建时间：</small><b>{{ host.create_date | formateTime }}</b></td>
+            </tr>
+          </table>
+
+          <!-- 远程连接 -->
+          <h4 class="info-section-title">远程连接</h4>
+          <table class="info-table">
+            <tr>
+              <td>
+                <small class="text-secondary">公网 IP 地址：</small>
+                <b>{{ host.dedicatedip }}</b>
+                <a href="javascript:;" class="text-primary text-nowrap" @click="copyText(host.dedicatedip)" v-if="host.dedicatedip"> 复制</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">远程用户名：</small>
+                <b>{{ host.username }}</b>
+                <a href="javascript:;" class="text-primary text-nowrap" @click="copyText(host.username)" v-if="host.username"> 复制</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">远程密码：</small>
+                <span class="font-jbmono">
+                  <span v-if="isShowPass">{{ host.password }}</span>
+                  <span v-else>****************</span>
+                </span>
+                <a href="javascript:;" class="text-primary text-nowrap" @click="copyText(host.password)" v-if="host.password"> 复制</a>
+                <a href="javascript:;" class="ml-1" @click="isShowPass=!isShowPass">
+                  <b>{{ isShowPass ? '隐藏' : '查看' }}</b>
+                </a>
+                <a href="javascript:;" class="font-black text-secondary ml-1" @click="showRePass">
+                  <b>重置</b>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">网区：</small>{{ host.zone }}</td>
+            </tr>
+            <tr v-if="host.int_ip">
+              <td><small class="text-secondary">内网IP：</small>{{ host.int_ip }}</td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">用户ID：</small>{{ host.uid }}</td>
+            </tr>
+          </table>
+
+          <!-- 配置信息 -->
+          <h4 class="info-section-title">配置信息</h4>
+          <table class="info-table">
+            <tr>
+              <td>
+                <small class="text-secondary">套餐：</small>
+                <b>{{ host.plan_name }}</b>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">配置：</small>
+                <span>{{ host.cpu }} vCPU / {{ host.memory }} GB / {{ host.disk }} GB</span>
+                <span v-if="host.net_in"> / 上行 {{ host.net_in }} Mbps</span>
+                <span v-if="host.net_out"> / 下行 {{ host.net_out }} Mbps</span>
+                <span v-if="host.traffic_base_gb"> / 流量 {{ host.traffic_base_gb }} GB</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">系统：</small>
+                <span class="os-name"><img :src="osIconUrl" class="os-icon" v-if="osIconUrl" /> {{ host.os }}</span>
+              </td>
+            </tr>
+            <tr v-if="host.line">
+              <td><small class="text-secondary">线路：</small>{{ host.line }}</td>
+            </tr>
+          </table>
+
+          <!-- 财务信息 -->
+          <h4 class="info-section-title">财务信息</h4>
+          <table class="info-table">
+            <tr>
+              <td><small class="text-secondary">产品名：</small><b>{{ hostData.name }}</b></td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">开通时间：</small><b>{{ hostData.active_time | formateTime }}</b></td>
+            </tr>
+            <tr>
+              <td><small class="text-secondary">首付金额：</small><b>{{ commonData.currency_prefix }}{{ hostData.first_payment_amount }}{{ commonData.currency_suffix }}</b></td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">续费价格：</small>
+                <b>{{ commonData.currency_prefix }}{{ showRenewPrice }}{{ commonData.currency_suffix }}/{{ hostData.billing_cycle_name }}</b>
+                <template v-if="hostData?.status==='Active' || hostData?.status==='Suspended'">
+                  <span class="renew-btn" @click="showRenew"
+                    v-if="hasRenewPlugin && (!refundInfo || refundInfo || (refundInfo && refundInfo.status=='Cancelled') || (refundInfo && refundInfo.status=='Reject')) && (host.billing_cycle !== 'onetime' && host.billing_cycle !== 'free')">续费</span>
+                  <span class="renew-btn disabled" v-else>续费</span>
+                </template>
+              </td>
+            </tr>
+            <tr v-if="hasRenewPlugin && host.billing_cycle !== 'onetime' && host.billing_cycle !== 'free' && (host?.status === 'Active' || host?.status === 'Suspended')">
+              <td>
+                <small class="text-secondary">自动续费：</small>
+                <auto-renew v-if="hasAutoRenew" :id="id" :is-auto-renew="isShowPayMsg" @update="getRenewStatus"></auto-renew>
+                <el-popover placement="top" trigger="hover">
+                  <div class="sure-remind">{{lang.common_cloud_tip15}}</div>
+                  <div class="help" slot="reference">?</div>
+                </el-popover>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-secondary">优惠码：</small>
+                <span v-if="promo_code.length > 0">
+                  <span v-for="(item,index) in promo_code" :key="item">{{item}}<span v-if="index !== 0">;</span></span>
+                </span>
+                <span v-else>--</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </el-tab-pane>
+      <template v-if="chartData.length > 0">
+        <el-tab-pane :label="lang.common_cloud_tab1" name="1">
+          <el-select class="time-select" v-model="chartSelectValue" @change="chartSelectChange">
+            <el-option value='1' label="实时"></el-option>
+            <el-option value='2' label="本日"></el-option>
+            <el-option value='3' label="本周"></el-option>
+          </el-select>
+          <div class="echart-main">
+            <div class="echart-item" :class="{'has-select': item.select.length > 0}" v-for="(item,index) in chartData"
+              :key="index" v-loading="item.loading">
+              <el-select v-if="item.select.length > 0" v-model="item.selectValue" @change="getChartList">
+                <el-option v-for="items in item.select" :key="items.value" :value="items.value"
+                  :label="items.name"></el-option>
+              </el-select>
+              <div :id="`${index}-echart`" class="my-echart"></div>
+            </div>
+          </div>
+        </el-tab-pane>
+      </template>
+      <template v-if="powerList.length > 0">
+        <el-tab-pane :label="lang.common_cloud_tab2" name="2">
+          <!-- 管理 -->
+          <div class="manage-content">
+            <div class="manage-item">
+              <div class="item-top">
+                <el-select v-model="powerStatus">
+                  <el-option v-for="item in powerList" :key="item.func" :value="item.func"
+                    :label="item.name"></el-option>
+                </el-select>
+                <div class="item-top-btn" @click="showPowerDialog" v-loading="loading1">
+                  {{lang.common_cloud_btn10}}
+                </div>
+              </div>
+              <div class="item-bottom">
+                <div class="bottom-row">{{lang.common_cloud_tip16}}</div>
+              </div>
+            </div>
+            <div class="manage-item" v-for="item in consoleList" :key="item.func">
+              <div class="item-top-btn" @click="handelConsole(item)">
+                {{item.name}}
+              </div>
+              <div class="item-bottom">
+                <template v-if="item.func === 'crack_pass'">
+                  <div class="bottom-row">{{lang.common_cloud_tip19}}</div>
+                  <div class="bottom-row">{{lang.common_cloud_tip20}}</div>
+                </template>
+                <template v-if="item.func === 'reinstall'">
+                  <div class="bottom-row">{{lang.common_cloud_tip23}}</div>
+                </template>
+                <template v-if="item.func === 'vnc_xtermjs'">
+                  <div class="bottom-row">基于 Xtermjs 的 Web 终端，支持复制粘贴</div>
+                  <div class="bottom-row">适合日常运维管理操作</div>
+                </template>
+                <template v-if="item.func === 'vnc_novnc'">
+                  <div class="bottom-row">基于 NoVNC 的完整桌面协议代理</div>
+                  <div class="bottom-row">适合排错救援、BIOS 层面操作</div>
+                </template>
+              </div>
+            </div>
+
+          </div>
+        </el-tab-pane>
+      </template>
+      <!-- 重装系统 -->
+      <el-tab-pane label="重装系统" name="reinstall">
+        <div class="ry-section" style="margin-top: 0.2rem;">
+          <h4 class="ry-section-title">
+            <svg width="20" height="20" viewBox="0 0 576 512" fill="currentColor">
+              <path d="M64 0C28.7 0 0 28.7 0 64L0 352c0 35.3 28.7 64 64 64l176 0-10.7 32L160 448c-17.7 0-32 14.3-32 32s14.3 32 32 32l256 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-69.3 0L336 416l176 0c35.3 0 64-28.7 64-64l0-288c0-35.3-28.7-64-64-64L64 0zM512 64l0 224L64 288 64 64l448 0z"/>
+            </svg>
+            系统和软件安装
+          </h4>
+          <hr class="ry-divider">
+
+          <div class="ry-os-grid">
+            <div v-for="group in reinstallOsGroups" :key="group.icon"
+              class="ry-os-group" :class="{ 'ry-os-group-expanded': reinstallExpandedGroup === group.icon }">
+              <div class="ry-os-group-header" @click="reinstallToggleGroup(group.icon)">
+                <img :src="getOsLogo(group.icon)" height="36" class="ry-os-icon" alt="">
+                <div class="ry-os-group-info">
+                  <div class="ry-os-group-name">{{ group.osInfo.name }}</div>
+                  <div class="ry-os-group-version">{{ reinstallGetSelectedVersionName(group) }}</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ry-os-group-arrow">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div v-show="reinstallExpandedGroup === group.icon" class="ry-os-group-items">
+                <div v-for="os in group.items" :key="os.id"
+                  class="ry-os-card" :class="{ 'ry-os-active': reinstallSelectedOsId === os.id }"
+                  @click="reinstallSelectOs(os)">
+                  <div class="ry-os-card-inner">
+                    <span class="ry-os-name">{{ os.chinese_name || os.name }}</span>
+                    <span v-if="os.is_with_bbr" class="ry-badge">BBR</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 确认选项 -->
+          <div style="margin-top: 0.2rem; border-top: 1px solid #e9ecef; padding-top: 0.16rem;">
+            <label style="display: flex; align-items: center; gap: 0.08rem; font-size: 0.14rem; color: #495057; cursor: pointer; margin-bottom: 0.1rem;">
+              <input type="checkbox" v-model="reinstallConfirm" />
+              <span>确认操作并放弃服务器系统盘数据</span>
+            </label>
+            <label v-if="reinstallConfirm" style="display: flex; align-items: center; gap: 0.08rem; font-size: 0.14rem; color: #ef4444; cursor: pointer; margin-bottom: 0.12rem;">
+              <input type="checkbox" v-model="reinstallResetOsd" />
+              <span><b>重置系统盘容量</b>（慎选，将系统盘容量还原到扩容前）</span>
+            </label>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.12rem;">
+            <button class="ry-btn ry-btn-primary" @click="doReinstallFromTab" :disabled="reinstallLoading || !reinstallConfirm">
+              {{ reinstallLoading ? '重装中...' : '重装系统' }}
+            </button>
+            <span v-if="reinstallErrText" style="color: #ef4444; font-size: 0.13rem;">{{ reinstallErrText }}</span>
+          </div>
+        </div>
+      </el-tab-pane>
+      <el-tab-pane v-for="(item,index) in client_area" :label="item.name" :name="index + 3 + ''"
+        :key="index + item.name">
+        <!-- NAT转发管理 - 直接使用Vue渲染 -->
+        <div v-if="activeName === (index + 3 + '') && item.key === 'nat'" class="nat-wrapper">
+          <div class="nat-header">
+            <span class="nat-title">NAT转发管理</span>
+            <el-button type="primary" size="small" @click="natDialogVisible = true">+ 创建转发</el-button>
+          </div>
+          <el-table :data="natList" v-loading="natLoading" style="width: 100%">
+            <el-table-column prop="ID" label="ID" width="80"></el-table-column>
+            <el-table-column label="外网端口">
+              <template slot-scope="scope">{{ natPublicIp }}:{{ scope.row.PortOut }}</template>
+            </el-table-column>
+            <el-table-column prop="PortIn" label="内网端口"></el-table-column>
+            <el-table-column label="协议">
+              <template slot-scope="scope">
+                <el-tag :type="natProtocolType(scope.row.PortType)" size="small">{{ natProtocolLabel(scope.row.PortType) }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="100">
+              <template slot-scope="scope">
+                <el-button type="text" style="color: #ef4444;" @click="deleteNat(scope.row.ID)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div v-if="natList.length === 0 && !natLoading" class="nat-empty">
+            <p>暂无NAT转发规则</p>
+          </div>
+
+          <!-- 创建NAT弹窗 -->
+          <el-dialog title="创建NAT转发" :visible.sync="natDialogVisible" width="520px" :close-on-click-modal="false">
+            <el-form :model="natManageForm" label-position="top">
+              <el-form-item label="外网端口" required>
+                <el-input-number v-model="natManageForm.port_out" :min="1" :max="65535" controls-position="right" style="width: 100%"></el-input-number>
+              </el-form-item>
+              <el-form-item label="内网端口" required>
+                <el-input-number v-model="natManageForm.port_in" :min="1" :max="65535" controls-position="right" style="width: 100%"></el-input-number>
+              </el-form-item>
+              <el-form-item label="映射类型" required>
+                <el-select v-model="natManageForm.port_type" style="width: 100%">
+                  <el-option label="TCP" value="tcp"></el-option>
+                  <el-option label="UDP" value="udp"></el-option>
+                  <el-option label="ALL（TCP+UDP）" value="tcp_udp"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <span slot="footer">
+              <el-button @click="natDialogVisible = false">取消</el-button>
+              <el-button type="primary" @click="submitAddNat" :loading="natSubmitting">确定</el-button>
+            </span>
+          </el-dialog>
+        </div>
+        <!-- 其他自定义区域 - 通过API加载HTML -->
+        <div v-if="activeName === (index + 3 + '') && item.key !== 'nat'" :id="`arae-${index + 3 + ''}`" :key="index + item.name"></div>
+    </el-tabs>
+
+    <!-- 续费弹窗 -->
+    <renew-dialog v-if="product_id" ref="renewDialog" :by-index="true" :id="id" :product-id="product_id"
+      :is-demand-fee="false" @renew-success="handleRenewSuccess" @renew-pay="handleRenewPay">
+    </renew-dialog>
+    <!-- <div class="renew-dialog">
+      <el-dialog width="6.9rem" :visible.sync="isShowRenew" :show-close=false @close="renewDgClose">
+        <div class="dialog-title">{{lang.common_cloud_text179}}</div>
+        <div class="dialog-main">
+          <div class="renew-content">
+            <div class="renew-item" v-for="(item,index) in renewPageData" :key="index"
+              :class="renewActiveId == index ? 'renew-active' : ''" @click="renewItemChange(item,index)">
+              <div class="item-top">{{item.customfield?.multi_language?.billing_cycle || item.billing_cycle}}</div>
+              <div class="item-bottom" v-if="isShowPromo && isUseDiscountCode">
+                {{commonData.currency_prefix + item.base_price}}
+              </div>
+              <div class="item-bottom" v-else>{{commonData.currency_prefix + item.price}}</div>
+              <div class="item-origin-price" v-if="item.price*1 < item.base_price*1 && !isUseDiscountCode">
+                {{commonData.currency_prefix + item.base_price}}
+              </div>
+              <i class="el-icon-check check" v-show="renewActiveId == index"></i>
+            </div>
+          </div>
+        </div>
+        <div class="pay-content">
+          <div class="pay-price">
+            <div class="money" v-loading="renewLoading">
+              <span
+                class="text">{{lang.common_cloud_label11}}:</span><span>{{commonData.currency_prefix}}{{renewParams.totalPrice
+                | filterMoney}}</span>
+              <el-popover placement="top-start" width="200" trigger="hover"
+                v-if="(isShowLevel && renewParams.clDiscount*1 > 0) || (isShowPromo && isUseDiscountCode) ">
+                <div class="show-config-list">
+                  <p v-if="isShowLevel && renewParams.clDiscount*1 > 0">
+                    {{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}} {{renewParams.clDiscount |
+                    filterMoney}}
+                  </p>
+                  <p v-if="isShowPromo && isUseDiscountCode">
+                    {{lang.shoppingCar_tip_text4}}：{{commonData.currency_prefix}} {{ renewParams.code_discount |
+                    filterMoney }}
+                  </p>
+                </div>
+                <i class="el-icon-warning-outline total-icon" slot="reference"></i>
+              </el-popover>
+              <p class="original-price"
+                v-if="customfield.promo_code && renewParams.totalPrice != renewParams.base_price">
+                {{commonData.currency_prefix}} {{ renewParams.base_price | filterMoney}}
+              </p>
+              <p class="original-price"
+                v-if="!customfield.promo_code && renewParams.totalPrice != renewParams.original_price">
+                {{commonData.currency_prefix}} {{ renewParams.original_price | filterMoney}}
+              </p>
+              <div class="code-box">
+                <discount-code v-show="isShowPromo && !customfield.promo_code" @get-discount="getDiscount(arguments)"
+                  scene='renew' :product_id="product_id" :amount="renewParams.base_price"
+                  :billing_cycle_time="renewParams.duration"></discount-code>
+              </div>
+              <div class="code-number-text">
+                <div class="discount-codeNumber" v-show="customfield.promo_code">{{ customfield.promo_code }}
+                  <i class="el-icon-circle-close remove-discountCode" @click="removeDiscountCode()"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="first-due-time" v-if="firstDueTime > 0">{{lang.renew_due_time}}：{{firstDueTime | formateTime}}</p>
+        <div class="dialog-footer">
+          <el-button class="btn-ok" @click="subRenew" :loading="loading">{{lang.common_cloud_text180}}</el-button>
+          <div class="btn-no" @click="renewDgClose">{{lang.common_cloud_text181}}</div>
+        </div>
+      </el-dialog>
+    </div> -->
+
+    <!-- 重装系统弹窗 -->
+    <div class="reinstall-dialog">
+      <el-dialog width="6.2rem" :visible.sync="isShowReinstallDialog" :show-close=false @close="reinstallDgClose">
+        <div class="dialog-title">
+          {{lang.common_cloud_title9}}
+        </div>
+        <div class="dialog-main">
+          <div class="label">{{lang.common_cloud_label6}}</div>
+          <div class="os-content">
+            <!-- 镜像组选择框 -->
+            <el-select class="os-select os-group-select" v-model="reinstallData.osGroupId"
+              @change="osSelectGroupChange">
+              <img class="os-group-img" :src="osIcon" slot="prefix" alt="" v-if="osIcon">
+              <el-option v-for="item in osData.subs" :key='item.os' :value="item.os" :label="item.os">
+                <div class="option-label">
+                  <img class="option-img"
+                    :src="'/plugins/server/rainyunrcs/template/clientarea/img/rainyunrcs/' + item.os.toLowerCase() + '.svg'"
+                    alt="">
+                  <span class="option-text">{{item.os}}</span>
+                </div>
+              </el-option>
+            </el-select>
+            <!-- 镜像实际选择框 -->
+            <el-select class="os-select" v-model="reinstallData.osId" @change="osSelectChange">
+              <el-option v-for="item in osSelectData" :key="item.id" :value="item.id"
+                :label="item.option_name"></el-option>
+            </el-select>
+          </div>
+          <div class="alert">
+            <el-alert :title="errText" type="error" show-icon :closable="false" v-show="errText">
+            </el-alert>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <div class="btn-ok" @click="doReinstall">{{lang.common_cloud_btn28}}</div>
+          <div class="btn-no" @click="reinstallDgClose">{{lang.common_cloud_btn29}}</div>
+        </div>
+      </el-dialog>
+    </div>
+
+    <!-- 重置密码弹窗 -->
+    <div class="repass-dialog">
+      <el-dialog width="6.8rem" :visible.sync="isShowRePass" :show-close=false @close="rePassDgClose">
+        <div class="dialog-title">
+          {{lang.common_cloud_title13}}
+          <span class="second-title">{{lang.common_cloud_text23}}</span>
+        </div>
+        <div class="dialog-main">
+          <div class="label">
+            {{lang.common_cloud_label7}}
+            <el-popover placement="top-start" width="200" trigger="hover" :content="lang.common_cloud_tip33">
+              <i class="el-icon-question" slot="reference"></i>
+            </el-popover>
+
+          </div>
+          <el-input class="pass-input" v-model="rePassData.password" :placeholder="lang.ticket_label12">
+          </el-input>
+
+          <!-- <el-input style="margin-top: 0.2rem;" class="pass-input" v-model="rePassData.code" :placeholder="lang.account_tips33" v-if="cloudConfig.reset_password_sms_verify === 1">
+            <div class="pass-btn" slot="suffix" v-if="isSendCodeing">{{sendTime}}{{lang.account_tips54}}</div>
+            <div class="pass-btn" slot="suffix" v-loading="sendFlag" @click="sendCode" v-else>{{lang.account_tips55}}
+            </div>
+          </el-input> -->
+          <!-- <div class="alert" v-show="powerStatus=='off'">
+            <div class="title">{{lang.common_cloud_tip30}}</div>
+            <div class="row"><span class="dot"></span> {{lang.common_cloud_tip31}}</div>
+            <div class="row"><span class="dot"></span> {{lang.common_cloud_tip32}}
+            </div>
+          </div> -->
+          <!-- <el-checkbox v-model="rePassData.checked" v-show="powerStatus=='off'">{{lang.common_cloud_text24}}</el-checkbox> -->
+          <div class="alert-err-text">
+            <el-alert :title="errText" type="error" show-icon :closable="false" v-show="errText">
+            </el-alert>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <div class="btn-ok" @click="rePassSub" v-loading="loading5">{{lang.common_cloud_btn28}}</div>
+          <div class="btn-no" @click="rePassDgClose">{{lang.common_cloud_btn29}}</div>
+        </div>
+      </el-dialog>
+    </div>
+
+
+    <!-- 电源操作确认弹窗 -->
+    <div class="power-dialog">
+      <el-dialog width="6.2rem" :visible.sync="isShowPowerChange" :show-close=false @close="powerDgClose">
+        <div class="dialog-title">
+          {{lang.common_cloud_text34}}{{powerTitle}}{{lang.common_cloud_text35}}
+        </div>
+        <div class="dialog-main">
+          <div class="label">{{lang.common_cloud_text36}}</div>
+          <div class="value">{{hostData.name}}</div>
+        </div>
+        <div class="dialog-footer">
+          <div class="btn-ok" @click="toChangePower" v-loading="loading1">{{lang.common_cloud_btn28}}</div>
+          <div class="btn-no" @click="powerDgClose">{{lang.common_cloud_btn29}}</div>
+        </div>
+      </el-dialog>
+    </div>
+
+    <!-- 停用弹窗 -->
+    <!-- <el-dialog :title="refundDialog.allow_refund == 1 ? lang.common_cloud_title11 : lang.common_cloud_title12"
+      :visible.sync="refundVisible" class="refundDialog refund-dialog" :show-close="false">
+      <el-form :model="refundForm" label-position="top">
+        <p class="tit">{{lang.common_cloud_label35}}</p>
+        <div class="info">
+          <div class="des">
+            <div class="item">
+              <p class="s-tit">{{lang.common_cloud_label36}}：</p>
+              <div class="config">
+                <div class="s-item" v-for="(item,index) in configoptions" :key="index" style="display: flex;">
+                  <p class="name">{{item.option_name}}：</p>
+                  <div class="r-info">
+                    <span class="s-item"
+                      v-if="item.option_type === 'quantity' || item.option_type === 'quantity_range'">
+                      {{item.qty}}
+                    </span>
+                    <span class="s-item" v-for="(el,ind) in item.subs" :key="ind">
+                      <img :src="`/upload/common/country/${el.country}.png`" alt="" v-if="item.option_type ==='area'"
+                        style="width: .2rem;">
+                      {{el.option_name}}
+                    </span>
+                  </div>
+                  <span>{{item.unit}}</span>
+                </div>
+              </div>
+            </div>
+            <div class="item">
+              <p class="s-tit">{{lang.common_cloud_label37}}: </p>
+              <div class="config">
+                {{refundDialog?.host?.create_time | formateTime}}
+              </div>
+            </div>
+            <div class="item" v-if="refundDialog.allow_refund == 1">
+              <p class="s-tit">{{lang.common_cloud_label38}}: </p>
+              <div class="config">
+                {{commonData.currency_prefix}}{{refundDialog?.host?.first_payment_amount}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <el-form-item :label="lang.common_cloud_label39">
+          <el-select v-model="refundForm.arr" v-if="!refundDialog.reason_custom" style="width: 100%;" multiple>
+            <el-option :label="item.content" :value="item.id" v-for="item in refundDialog.reasons"
+              :key="item.id"></el-option>
+          </el-select>
+          <el-input v-model="refundForm.str" v-else :placeholder="lang.common_cloud_label44"></el-input>
+        </el-form-item>
+        <el-form-item :label="lang.common_cloud_label40">
+          <el-select v-model="refundForm.type" @change="changeReson">
+            <el-option :label="lang.common_cloud_label42" value="Immediate"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <p class="tit" v-if="refundDialog.allow_refund == 1">{{lang.common_cloud_label43}}</p>
+      <p class="money" v-if="refundDialog.allow_refund == 1">{{commonData.currency_prefix}}{{refundDialog.host.amount}}
+      </p>
+      <div slot="footer" class="dialog-footer">
+        <span class="refund-tip" v-show="refundDialog.allow_refund === 0">{{lang.refund_tip}}</span>
+        <el-button type="primary" @click="submitRefund" :loading="loading">{{refundDialog.allow_refund ===1 ?
+          lang.common_cloud_btn31 : lang.common_cloud_btn32}}</el-button>
+        <el-button @click="refundVisible = false">{{lang.common_cloud_btn29}}</el-button>
+      </div>
+    </el-dialog> -->
+
+    <!-- 不允许退款 -->
+    <el-dialog title="" :visible.sync="noRefundVisible" class="no-allow" :show-close="false">
+      <img :src="`${baseUrl}/img/common/close.png`" alt="">
+      <span class="tit">{{lang.common_cloud_btn64}}</span>
+      <span class="des">{{lang.common_cloud_btn65}}<br />{{lang.common_cloud_btn66}}</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="noRefundVisible = false">{{lang.common_cloud_btn34}}</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 支付弹窗 -->
+    <pay-dialog ref="payDialog" @payok="paySuccess" @paycancel="payCancel"></pay-dialog>
+    <!-- 修改备注弹窗 -->
+    <div class="notes-dialog">
+      <el-dialog width="6.2rem" :visible.sync="isShowNotesDialog" :show-close=false @close="notesDgClose">
+        <div class="dialog-title">
+          {{hostData.notes ? lang.common_cloud_title7 : lang.common_cloud_text183}}
+        </div>
+        <div class="dialog-main">
+          <div class="label">{{lang.common_cloud_text184}}</div>
+          <el-input class="notes-input" v-model="notesValue"></el-input>
+        </div>
+        <div class="dialog-footer">
+          <div class="btn-ok" @click="subNotes">{{lang.common_cloud_text185}}</div>
+          <div class="btn-no" @click="notesDgClose">{{lang.common_cloud_btn29}}</div>
+        </div>
+      </el-dialog>
+    </div>
+
+    <!-- 申请返现 -->
+    <cash-back :id="id" :show-cash="isShowCashDialog" @cancledialog="cancleDialog" @showbtn="showBtn"></cash-back>
+
+    <!-- 升降级弹窗 已注释 -->
+    <!--
+    <el-dialog class="up-License" :visible.sync="upLicenseDialogShow" width="12rem" :show-close="false"
+      :close-on-click-modal="false">
+      ... 升降级弹窗内容已注释 ...
+    </el-dialog>
+    -->
+    <!-- 安全验证 -->
+    <safe-confirm ref="safeRef" :password.sync="client_operate_password" @confirm="hadelSafeConfirm"></safe-confirm>
+  </div>
+</div>
+<!-- =======页面独有======= -->
+<script src="/plugins/server/rainyunrcs/template/clientarea/lang/index.js"></script>
+<script src="/plugins/server/rainyunrcs/template/clientarea/api/config.js"></script>
+<script src="/plugins/server/rainyunrcs/template/clientarea/js/echarts.js"></script>
+<script src="/plugins/server/rainyunrcs/template/clientarea/js/product_detail.js"></script>

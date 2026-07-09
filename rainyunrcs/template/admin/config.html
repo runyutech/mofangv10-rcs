@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="/plugins/server/rainyunrcs/template/admin/css/common_config.css" />
+<div class="product_config" v-cloak>
+  <com-config>
+    <div class="t-card">
+      <div class="box">
+        <t-form :data="formData" ref="formRef" @submit="submitForm" :rules="formRules" class="data-form" label-align="left">
+          <t-form-item :label="lang.product_id" name="pid">
+            <t-input 
+              v-model="formData.pid" 
+              :placeholder="lang.product_id_tip"
+              class="form-input">
+            </t-input>
+          </t-form-item>
+          <t-form-item :label="lang.price_rate" name="price_rate">
+            <t-input 
+              v-model="formData.price_rate" 
+              :placeholder="lang.price_rate_tip"
+              class="form-input">
+              <template #suffix>%</template>
+            </t-input>
+          </t-form-item>
+          <div class="f-btn">
+            <t-button theme="primary" type="submit" :loading="submitLoading">{{lang.hold || '保存'}}</t-button>
+          </div>
+        </t-form>
+      </div>
+    </div>
+  </com-config>
+</div>
+<script src="/plugins/server/rainyunrcs/template/admin/lang/index.js"></script>
+<script src="/plugins/server/rainyunrcs/template/admin/api/common_config.js"></script>
+<script src="/plugins/server/rainyunrcs/template/admin/js/common_config.js"></script>

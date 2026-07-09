@@ -1,0 +1,290 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/server/rainyunrcs/template/clientarea/css/rainyun_goods.css">
+
+<div id="rainyun_goods" v-cloak>
+  <div class="ry-container">
+    <!-- 顶部导航 -->
+    <div class="ry-header">
+      <a class="ry-back" @click="goBack">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </a>
+      <span class="ry-title">{{ productInfo.chinese || '产品订购' }}</span>
+    </div>
+
+    <div class="ry-body">
+      <!-- ========== 系统盘 ========== -->
+      <div class="ry-section">
+        <h4 class="ry-section-title">
+          <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor">
+            <path d="M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 184.4c-17-15.2-39.4-24.4-64-24.4L64 256c-24.6 0-47 9.2-64 24.4L0 96zM64 288l384 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64zM320 416a32 32 0 1 0 0-64 32 32 0 1 0 0 64zm128-32a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+          </svg>
+          系统盘
+        </h4>
+        <hr class="ry-divider">
+
+        <div class="ry-disk-item">
+          <div class="ry-disk-row">
+            <div class="ry-disk-label">
+              <span class="ry-label-text">类型</span>
+            </div>
+            <div class="ry-disk-control">
+              <select v-model="selectedDiskType" class="ry-select">
+                <option v-for="opt in diskTypeOptions" :key="opt.value" :value="opt.value" :disabled="opt.disabled">
+                  {{ opt.label }}{{ opt.disabled ? '（购买后可附加）' : '' }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <template v-if="currentDiskMeta">
+            <div class="ry-disk-row">
+              <div class="ry-disk-label">
+                <span class="ry-label-text">容量（GB）</span>
+                <span v-if="currentDiskMeta.pricePerGB > 0" class="ry-price-tag">{{ currencySymbol }}{{ currentDiskMeta.pricePerGB }} /GB/月</span>
+              </div>
+              <div class="ry-disk-control">
+                <div class="ry-spinbutton">
+                  <button class="ry-spin-btn" @click="adjustDiskSize(-currentDiskMeta.step)" :disabled="diskSize <= currentDiskMeta.minSize">
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                      <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                    </svg>
+                  </button>
+                  <output class="ry-spin-output">{{ diskSize }}</output>
+                  <button class="ry-spin-btn" @click="adjustDiskSize(currentDiskMeta.step)" :disabled="diskSize >= currentDiskMeta.maxSize">
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <ul class="ry-tips">
+              <li>{{ diskSummaryText }}</li>
+            </ul>
+          </template>
+        </div>
+      </div>
+
+      <!-- ========== 公网 IP ========== -->
+      <div class="ry-section">
+        <h4 class="ry-section-title">
+          <svg width="20" height="20" viewBox="0 0 640 512" fill="currentColor">
+            <path d="M256 64l128 0 0 64-128 0 0-64zM240 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l48 0 0 32L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 32-48 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l160 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-48 0 0-32 256 0 0 32-48 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l160 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-48 0 0-32 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-256 0 0-32 48 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48L240 0zM96 448l0-64 128 0 0 64L96 448zm320-64l128 0 0 64-128 0 0-64z"/>
+          </svg>
+          公网 IP
+        </h4>
+        <hr class="ry-divider">
+
+        <div class="ry-ip-section">
+          <!-- NAT/独立IP 切换（仅支持的 region 显示） -->
+          <div v-if="showNatOption" class="ry-nat-switch">
+            <div class="mb-1" style="font-size: initial;">
+              <div class="mb-50 custom-control custom-radio">
+                <input type="radio" name="EIP" class="custom-control-input"
+                  v-model="useNat" :value="true"
+                  @change="onNatModeChange(true)"
+                  :id="'natRadio_' + productId + '_0'">
+                <label class="custom-control-label" :for="'natRadio_' + productId + '_0'">
+                  <span class="font-medium-1"> NAT共享IP模式，允许开通10个端口 </span>
+                </label>
+              </div>
+              <div class="mb-50 font-medium-1 custom-control custom-radio">
+                <input type="radio" name="EIP" class="custom-control-input"
+                  v-model="useNat" :value="false"
+                  @change="onNatModeChange(false)"
+                  :id="'natRadio_' + productId + '_1'">
+                <label class="custom-control-label" :for="'natRadio_' + productId + '_1'">
+                  <b class="font-medium-1"> 独享公网IP模式 </b>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- NAT 模式下隐藏 IP 类型和数量 -->
+          <template v-if="!useNat">
+            <div class="ry-ip-row">
+              <div class="ry-ip-label">
+                <span class="ry-label-text">IP类型</span>
+              </div>
+              <div class="ry-ip-control">
+                <select v-model="selectedIpType" class="ry-select" @change="onIpTypeChange">
+                  <option v-for="(label, key) in ipTypeOptions" :key="key" :value="key">
+                    {{ label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ry-ip-row">
+              <div class="ry-ip-label">
+                <span class="ry-label-text">IP数量</span>
+                <span class="ry-price-tag">{{ currencySymbol }}{{ ipPricePerUnit }} /月</span>
+              </div>
+              <div class="ry-ip-control">
+                <div class="ry-spinbutton">
+                  <button class="ry-spin-btn" @click="adjustIpCount(-1)" :disabled="ipCount <= 1">
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                      <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                    </svg>
+                  </button>
+                  <output class="ry-spin-output">{{ ipCount }}</output>
+                  <button class="ry-spin-btn" @click="adjustIpCount(1)" :disabled="ipCount >= 3">
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <div class="ry-ip-row">
+            <div class="ry-ip-label">
+              <span class="ry-label-text">网区（同区内网互通）</span>
+            </div>
+            <div class="ry-ip-control">
+              <select v-model="selectedZone" class="ry-select" @change="onZoneChange">
+                <option value="">自动分配</option>
+                <option v-for="zone in zoneList" :key="zone" :value="zone">{{ zone }}</option>
+              </select>
+            </div>
+          </div>
+
+          <ul class="ry-tips">
+            <li>大陆网站或常用端口的HTTP业务需要先经过<a href="/apps/domain/record" target="_self">域名备案+过白</a>后才能使用域名访问</li>
+            <li>购买后可随时按需要加购或删除不同类型的公网IP</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ========== 操作系统 ========== -->
+      <div class="ry-section">
+        <h4 class="ry-section-title">
+          <svg width="20" height="20" viewBox="0 0 576 512" fill="currentColor">
+            <path d="M64 0C28.7 0 0 28.7 0 64L0 352c0 35.3 28.7 64 64 64l176 0-10.7 32L160 448c-17.7 0-32 14.3-32 32s14.3 32 32 32l256 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-69.3 0L336 416l176 0c35.3 0 64-28.7 64-64l0-288c0-35.3-28.7-64-64-64L64 0zM512 64l0 224L64 288 64 64l448 0z"/>
+          </svg>
+          系统和软件安装
+        </h4>
+        <hr class="ry-divider">
+
+        <div class="ry-os-grid">
+          <div v-for="group in osGroups" :key="group.icon"
+            class="ry-os-group"
+            :class="{ 'ry-os-group-expanded': expandedGroup === group.icon }">
+            <div class="ry-os-group-header" @click="toggleGroup(group.icon)">
+              <img :src="group.osInfo.logo" height="36" class="ry-os-icon" alt="">
+              <div class="ry-os-group-info">
+                <div class="ry-os-group-name">{{ group.osInfo.name }}</div>
+                <div class="ry-os-group-version">
+                  {{ getSelectedVersionName(group) }}
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ry-os-group-arrow">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+            <div v-show="expandedGroup === group.icon" class="ry-os-group-items">
+              <div v-for="os in group.items" :key="os.id"
+                class="ry-os-card" :class="{ 'ry-os-active': selectedOsId === os.id }"
+                @click="selectOs(os)">
+                <div class="ry-os-card-inner">
+                  <span class="ry-os-name">{{ os.chinese_name || os.name }}</span>
+                  <span v-if="os.is_with_bbr" class="ry-badge">BBR</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+      <!-- ========== 底部购买栏（含周期/优惠码/价格/按钮） ========== -->
+      <div class="ry-footer">
+        <div class="ry-footer-inner">
+          <!-- 购买时长（折叠下拉） -->
+          <div class="ry-footer-col">
+            <div class="ry-footer-label">购买时长</div>
+            <div class="ry-cycle-dropdown">
+              <div class="ry-cycle-dropdown-header" @click="cycleDropdownOpen = !cycleDropdownOpen">
+                <span>{{ selectedDuration ? selectedDuration.label : '请选择' }}</span>
+                <span v-if="selectedDuration && selectedDuration.discount < 1" class="ry-cycle-badge">{{ selectedDuration.badge }}</span>
+                <svg :class="['ry-arrow', { 'ry-arrow-up': cycleDropdownOpen }]" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div v-show="cycleDropdownOpen" class="ry-cycle-dropdown-menu">
+                <div v-for="d in durations" :key="d.months"
+                  class="ry-cycle-dropdown-item"
+                  :class="{ 'ry-cycle-active': selectedDuration && selectedDuration.months === d.months }"
+                  @click="selectCycle(d)">
+                  <span>{{ d.label }}</span>
+                  <span v-if="d.badge" class="ry-cycle-item-badge" :class="d.discount <= 0.7 ? 'ry-badge-danger' : 'ry-badge-warning'">{{ d.badge }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 配置价格 -->
+          <div class="ry-footer-col ry-footer-price-col">
+            <div class="ry-footer-label">配置价格</div>
+            <div class="ry-price-main">
+              <span class="ry-price-amount">{{ currencySymbol }}{{ totalPrice }}</span>
+              <span v-if="showOriginalPrice" class="ry-price-original">{{ currencySymbol }}{{ originalPrice }}</span>
+            </div>
+            <div v-if="showInfo && showInfo.length" class="ry-price-detail">
+              <span v-for="(item, idx) in showInfo" :key="idx">
+                {{ item.name }}：{{ item.price }}{{ idx < showInfo.length - 1 ? ' + ' : '' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 优惠码 -->
+          <div class="ry-footer-col">
+            <div class="ry-footer-label">优惠码</div>
+            <div v-if="!appliedPromoCode" class="ry-promo-row">
+              <input v-model="promoCodeInput" class="ry-promo-input" placeholder="输入优惠码" maxlength="9" />
+              <button class="ry-btn ry-btn-sm" @click="applyPromoCode" :disabled="isApplyingPromo">
+                {{ isApplyingPromo ? '验证中...' : '使用' }}
+              </button>
+            </div>
+            <div v-else class="ry-promo-applied">
+              <span class="ry-promo-code">{{ appliedPromoCode }}</span>
+              <span v-if="promoCodeDiscount > 0" class="ry-promo-discount">-{{ currencySymbol }}{{ promoCodeDiscount }}</span>
+              <button class="ry-btn ry-btn-sm ry-btn-link" @click="removePromoCode">移除</button>
+            </div>
+          </div>
+
+          <!-- 购买按钮 -->
+          <div class="ry-footer-col ry-footer-btn-col">
+            <button class="ry-btn ry-btn-secondary ry-btn-block" @click="addToCart" :disabled="loading">
+              {{ loading ? '处理中...' : '加入购物车' }}
+            </button>
+            <button class="ry-btn ry-btn-primary ry-btn-block" @click="buyNow" :disabled="loading">
+              {{ loading ? '处理中...' : '立即购买' }}
+            </button>
+            <button v-if="showTrialButton" class="ry-btn ry-btn-trial ry-btn-block" @click="tryNow" :disabled="loading">
+              {{ loading ? '处理中...' : '试用' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/plugins/server/rainyunrcs/template/clientarea/js/sweetalert2.all.min.js"></script>
+<script src="/plugins/server/rainyunrcs/template/clientarea/api/rainyun_goods.js"></script>
+<script src="/plugins/server/rainyunrcs/template/clientarea/js/rainyun_goods.js"></script>
