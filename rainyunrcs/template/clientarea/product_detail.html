@@ -70,9 +70,6 @@
               <td><small class="text-secondary">服务器 ID：</small><b>{{ host.server_id }}</b></td>
             </tr>
             <tr>
-              <td><small class="text-secondary">标签：</small><b>{{ host.tag || '未设定' }}</b></td>
-            </tr>
-            <tr>
               <td>
                 <small class="text-secondary">运行状态：</small>
                 <b v-html="powerStatusHtml"></b>
@@ -166,9 +163,6 @@
           <!-- 财务信息 -->
           <h4 class="info-section-title">财务信息</h4>
           <table class="info-table">
-            <tr>
-              <td><small class="text-secondary">产品名：</small><b>{{ hostData.name }}</b></td>
-            </tr>
             <tr>
               <td><small class="text-secondary">开通时间：</small><b>{{ hostData.active_time | formateTime }}</b></td>
             </tr>
